@@ -40,7 +40,10 @@ echo "=== Claude Code Slack Remote Setup ==="
 echo ""
 
 # --- 1. Copy files ---
-mkdir -p "$HOME/.claude/daemon"
+mkdir -p "$HOME/.claude/hooks" "$HOME/.claude/daemon"
+
+cp "$SCRIPT_DIR/hooks/notify.sh" "$HOME/.claude/hooks/notify.sh"
+chmod +x "$HOME/.claude/hooks/notify.sh"
 
 cp "$SCRIPT_DIR/daemon/claude_slack_daemon.py" "$HOME/.claude/daemon/claude_slack_daemon.py"
 cp "$SCRIPT_DIR/daemon/start_daemon.sh" "$HOME/.claude/daemon/start_daemon.sh"
@@ -125,7 +128,7 @@ done
 # --- 4. Dependencies ---
 echo ""
 echo "Dependencies:"
-for cmd in curl tmux claude; do
+for cmd in curl jq tmux claude; do
     if command -v $cmd &>/dev/null; then
         echo "  $cmd: OK"
     else
