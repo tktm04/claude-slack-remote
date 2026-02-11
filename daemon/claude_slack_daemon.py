@@ -34,6 +34,14 @@ if not SLACK_BOT_TOKEN or not SLACK_CHANNEL_ID:
     print("  source ~/.claude-slack-env")
     sys.exit(1)
 
+# Find claude binary (alias is not available in subprocess)
+import shutil
+CLAUDE_BIN = shutil.which("claude") or os.path.expanduser("~/.claude/local/claude")
+if not os.path.isfile(CLAUDE_BIN):
+    print(f"ERROR: claude not found (tried: {CLAUDE_BIN})")
+    sys.exit(1)
+log.info(f"Claude binary: {CLAUDE_BIN}")
+
 # Blocked shell commands
 BLOCKED_PATTERNS = [
     "rm -rf /",
@@ -86,7 +94,7 @@ def get_cwd(thread_ts):
 # === Claude Code ===
 
 def run_claude(prompt, cwd, session_id=None, resume_last=False):
-    cmd = ["claude", "-p", prompt, "--output-format", "json"]
+    cmd = [CLAUDE_BIN, "-p", prompt, "--output-format", "json"]
     if session_id:
         cmd.extend(["--resume", session_id])
     elif resume_last:
