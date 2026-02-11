@@ -28,8 +28,8 @@ fi
 # Kill existing daemon
 tmux kill-session -t claude-daemon 2>/dev/null || true
 
-# Start in tmux
-tmux new-session -d -s claude-daemon "$PYTHON $SCRIPT_DIR/claude_slack_daemon.py"
+# Start in tmux (source env inside tmux session)
+tmux new-session -d -s claude-daemon "source $ENV_FILE && $PYTHON $SCRIPT_DIR/claude_slack_daemon.py"
 echo "Daemon started"
 echo "  View:  tmux attach -t claude-daemon"
 echo "  Stop:  tmux kill-session -t claude-daemon"
