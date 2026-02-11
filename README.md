@@ -19,11 +19,8 @@ daemon/
   claude_slack_daemon.py   メインデーモン
   start_daemon.sh          tmuxで起動
   stop_daemon.sh           停止
-hooks/
-  notify.sh                Slack通知フック（idle通知は除外）
 setup.sh                   セットアップ（対話 or ワンライナー）
 env.template               環境変数テンプレート
-settings.json.example      Claude Code hooks設定テンプレート
 ```
 
 ## セットアップ
