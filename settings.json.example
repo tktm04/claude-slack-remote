@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "zsh ~/.claude/hooks/approve.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
