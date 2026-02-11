@@ -240,7 +240,16 @@ resume <id>  Continue specific session
 status       Show daemon status
 stop         Stop daemon
 ```
-Default directory: `{cwd}`"""
+
+*Session list:*
+`!claude conversation list` to see all sessions.
+Use `resume <id>` to continue a specific session.
+
+Default directory: `{cwd}`
+
+*Troubleshooting:*
+On the machine: `tmux attach -t claude-daemon`
+Log: `!tail ~/.claude/slack-daemon.log`"""
 
 
 # === Main loop ===
