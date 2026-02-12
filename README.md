@@ -10,6 +10,7 @@ Slack経由で複数マシンのClaude Codeをリモート操作するデーモ�
 - スレッド = セッション。返信で会話を継続
 - PCセッションの引き継ぎ
 - `!` でシェルコマンドも直接実行
+- **実行モード**: plan / readonly / auto / yolo で権限制御
 - python3標準ライブラリのみ（pip不要）
 
 ## 構成
@@ -70,11 +71,57 @@ source ~/.bashrc  # or ~/.zshrc
 |---------|------|
 | `!<command>` | シェルコマンド実行 (例: `!ls -la`, `!git status`) |
 | `!cd ~/project` | 作業ディレクトリ変更 |
+| `mode <name>` | スレッドの実行モードを設定 |
+| `model <name>` | スレッドのモデルを設定（sonnet/opus/haiku） |
 | `new` | 新規Claude Codeセッション |
 | `resume` | PCの最新セッション引き継ぎ |
 | `resume <id>` | 指定セッション引き継ぎ |
 | `status` | デーモン状態 |
+| `help` | 詳細ヘルプ |
 | `stop` | デーモン停止 |
+
+### 実行モード
+
+モードを使うと、Claude Codeの権限を制御できる。予約投稿でコーディングを進めたい場合などに便利。
+
+| モード | 説明 | ユースケース |
+|--------|------|-------------|
+| `plan` | 計画のみ、実行しない | 方針を確認してから実行したい時 |
+| `readonly` | 読み取り専用 | コードベースの分析・説明 |
+| `auto` | 全て自動承認 | 定型作業の自動化 |
+| `yolo` | 全権限スキップ(危険!) | CI/テスト環境での完全自動化 |
+
+**使い方 (3種類):**
+
+```
+# 1. プレフィックス（その場限り → スレッド継続）
+plan: このAPIにキャッシュを追加する方法を考えて
+
+# 2. コマンド（スレッド内で永続）
+mode auto
+
+# 3. 環境変数（デフォルト設定）
+export CLAUDE_ALLOWED_TOOLS="Read,Glob,Grep,Edit,Write,Bash"
+```
+
+### モデル指定
+
+| モデル | 説明 |
+|--------|------|
+| `sonnet` | バランス型（デフォルト相当） |
+| `opus` | 最高性能 |
+| `haiku` | 高速・低コスト |
+
+```
+# プレフィックス
+opus: この複雑なバグを修正して
+
+# コマンド
+model haiku
+
+# モードと組み合わせ
+auto: opus: このプロジェクトをリファクタリングして
+```
 
 ### PCセッション引き継ぎ
 
@@ -98,6 +145,9 @@ resume
 | `CLAUDE_WORK_DIR` | デフォルト作業ディレクトリ | `$HOME` |
 | `CLAUDE_TIMEOUT` | Claude Code タイムアウト(秒) | `600` |
 | `SHELL_TIMEOUT` | シェルコマンド タイムアウト(秒) | `30` |
+| `CLAUDE_ALLOWED_TOOLS` | 許可するツール（カンマ区切り） | 全許可 |
+| `CLAUDE_MODEL` | デフォルトモデル（sonnet/opus/haiku） | 自動 |
+| `PROGRESS_INTERVAL` | 進捗更新間隔（秒） | `30` |
 
 ## アップデート
 
@@ -111,6 +161,19 @@ git pull && bash setup.sh && ~/.claude/daemon/start_daemon.sh
 - `setup.sh` はデーモンファイルを `~/.claude/daemon/` にコピーする（`git pull` だけでは反映されない）
 - `~/.claude-slack-env` の既存設定は自動で引き継がれるので再入力不要
 - `start_daemon.sh` は既存デーモンを自動停止してから起動するので、事前に `stop` する必要はない
+
+## 追加機能
+
+### 進捗表示
+30秒以上かかるタスクは `:hourglass: Working... (30s)` のように進捗を表示。完了時に経過時間も表示。`PROGRESS_INTERVAL` で間隔を変更可能。
+
+### セッション永続化
+デーモン再起動後も以下が復元される：
+- 各スレッドの作業ディレクトリ
+- 設定したモード・モデル
+- アクティブなスレッド
+
+状態は `~/.claude/slack-daemon-state.json` に保存。
 
 ## 注意
 
