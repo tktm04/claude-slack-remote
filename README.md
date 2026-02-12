@@ -99,6 +99,19 @@ resume
 | `CLAUDE_TIMEOUT` | Claude Code タイムアウト(秒) | `600` |
 | `SHELL_TIMEOUT` | シェルコマンド タイムアウト(秒) | `30` |
 
+## アップデート
+
+コードを更新した場合は以下を実行:
+
+```bash
+cd claude-slack-remote
+git pull && bash setup.sh && ~/.claude/daemon/start_daemon.sh
+```
+
+- `setup.sh` はデーモンファイルを `~/.claude/daemon/` にコピーする（`git pull` だけでは反映されない）
+- `~/.claude-slack-env` の既存設定は自動で引き継がれるので再入力不要
+- `start_daemon.sh` は既存デーモンを自動停止してから起動するので、事前に `stop` する必要はない
+
 ## 注意
 
 - `~/.claude-slack-env` は `chmod 600` で保護（共有サーバーでは特に重要）
