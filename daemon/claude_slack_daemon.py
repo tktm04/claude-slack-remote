@@ -77,7 +77,8 @@ def send(text, thread_ts=None):
     payload = {"channel": SLACK_CHANNEL_ID, "text": text, "mrkdwn": True}
     if thread_ts:
         payload["thread_ts"] = thread_ts
-    slack_api("chat.postMessage", post_data=payload)
+    resp = slack_api("chat.postMessage", post_data=payload)
+    return resp.get("ts")
 
 
 # === State ===
@@ -266,8 +267,8 @@ def main():
     bot_user_id = slack_api("auth.test").get("user_id", "")
     log.info(f"Bot: {bot_user_id}, Channel: {SLACK_CHANNEL_ID}, Machine: {MACHINE_NAME}")
 
-    send(STARTUP_MSG.format(name=MACHINE_NAME, cwd=DEFAULT_CWD))
-    last_ts = str(time.time())
+    startup_ts = send(STARTUP_MSG.format(name=MACHINE_NAME, cwd=DEFAULT_CWD))
+    last_ts = startup_ts or str(int(time.time()))
     log.info(f"Watching from ts: {last_ts}")
 
     def shutdown(sig, frame):
